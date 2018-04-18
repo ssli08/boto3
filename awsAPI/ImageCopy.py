@@ -167,4 +167,4 @@ def main(tag):
 if __name__ == '__main__':
 #     import sys
 #     origin, tag = sys.argv
-    main('KeepClose_Master_Default_wwchen1')
+    main('CentOS7.2')
