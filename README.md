@@ -1,2 +1,2 @@
-# boto3
-boto3 api 
+#Amazon Boto3
+Amazon boto3 API for personal works!
