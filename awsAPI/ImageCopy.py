@@ -56,7 +56,7 @@ def migrateImage(amiName, srcAmiID):
     ACCESS_KEY, SECRET_KEY, srcRegion, destRegion = autheticate_key()
     
     ec2 = API(ACCESS_KEY, SECRET_KEY, region=destRegion)
-    client = ec2.session('ec2')
+    client = ec2.session().client('ec2')
     mylogger.info('Beginning to Migrate %s to %s' %(amiName, destRegion))
     print amiName, srcAmiID
     try:
@@ -100,7 +100,7 @@ def createImage(Instance_Name, Instance_ID):
     #create image for current running instances
     ACCESS_KEY, SECRET_KEY, srcRegion, destRegion = autheticate_key()
     ec2 = API(ACCESS_KEY, SECRET_KEY, srcRegion)
-    client = ec2.session('ec2')
+    client = ec2.session().client('ec2')
     amiList = list()
     label = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     
@@ -122,7 +122,7 @@ def createImage(Instance_Name, Instance_ID):
 def imageChecking(imageID):
     ACCESS_KEY, SECRET_KEY, srcRegion, destRegion = autheticate_key()
     ec2 = API(ACCESS_KEY, SECRET_KEY, srcRegion)
-    client = ec2.session('ec2')
+    client = ec2.session().client('ec2')
     while True:
         response = client.describe_images(
              ImageIds=[
@@ -158,7 +158,7 @@ def getInstanceID(tag):
 def main(tag):
     result = getInstanceID(tag)
     #result is list
-#     print result
+    
     amiList = createImage(result[0]['Instance_Name'], result[0]['Instance_ID'])
     mylogger.info('amiList %s' %amiList)
     migrateImage(amiList[0]['Image_Name'],amiList[0]['Image_Id'])

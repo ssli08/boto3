@@ -25,15 +25,12 @@ class API(object):
         self.key = key
         self.secret = secret
         self.region = region
-    def s3(self):
+    def session(self):
         session = boto3.session.Session(self.key, self.secret, region_name=self.region)
         return session
-    def session(self, args):
-        session = boto3.session.Session(self.key, self.secret, region_name=self.region)
-        client = session.client(args)
-        return client
-    def volumes(self, args):
-        client = self.session(args)
+
+    def volumes(self):
+        client = self.session().client('ec2')
         response = client.describe_volumes(
             Filters=[
                 {
@@ -71,7 +68,7 @@ class API(object):
                 }
             ]
         '''
-        client = self.session('ec2')
+        client = self.session().client('ec2')
         hostList = list()
         result = client.describe_instances(
             Filters=[
@@ -112,7 +109,7 @@ class API(object):
     #create instance
     def createInstances(self,imageID,instanceType,keyName, privateIP, subnetID, tagName):
 #     boto3.set_stream_logger('botocore', level='DEBUG')
-        client = self.session('ec2')
+        client = self.session().client('ec2')
         response = client.run_instances(     
             ImageId=imageID,
             InstanceType=instanceType,
@@ -149,7 +146,7 @@ class API(object):
         print state
     
     def getSnapshot(self, args):
-        client = self.session(args)
+        client = self.session().client(args)
         response = client.describe_snapshots(
         DryRun=False
         )
@@ -190,7 +187,7 @@ class API(object):
         return time.mktime(t.timetuple())
     
     def createTag(self, args, resourceID, tag):
-        client = self.session(args)
+        client = self.session().client(args)
         try:
             response = client.create_tags(
                 DryRun=False,
@@ -209,7 +206,7 @@ class API(object):
         return response
     #boto3 for aws network virtual private cloud
     def createVPC(self, args, cidr, tag):
-        client = self.session(args)
+        client = self.session().client(args)
         out = client.describe_vpcs(
             Filters=[
                 {
@@ -244,7 +241,7 @@ class API(object):
 
 #         print('vpc %s create') % vpc['Vpc']['VpcId']
     def createSubnet(self, args, subnet, cidr):
-        client = self.session(args)
+        client = self.session().client(args)
         try:
             #create subnet with vpc id
             response = client.create_subnet(
@@ -259,7 +256,7 @@ class API(object):
         return response
         
     def attachRoute(self,args, cidr, tag):
-        client = self.session(args)
+        client = self.session().client(args)
         vpcid = self.vpc_create(args, cidr, tag)
         response = client.describe_route_tables(
             Filters=[
@@ -303,7 +300,7 @@ class API(object):
             print('%s already attached %s') %(igwID, vpcid)
     #ELB Describe
     def getELB(self, args, elbName):
-        client = self.session(args)
+        client = self.session().client(args)
         response = client.describe_load_balancers(
         LoadBalancerNames=[
             elbName,
@@ -313,7 +310,7 @@ class API(object):
         )
         print json.dumps(response, indent=2, cls=DateEncoder)
     def ELBPolicySetting(self,elbName,port,policy_name='Custom-TCP-ProxyProtocol-Policy', args='elb'):
-        client = self.session(args)                                                        
+        client = self.session().client(args)                                                        
 
         policy_result = client.create_load_balancer_policy(
                             LoadBalancerName=elbName,
